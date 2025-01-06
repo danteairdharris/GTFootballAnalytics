@@ -75,12 +75,10 @@ def create_circular_progress_bar(percentage, title_input, color_input):
 # Get all file names in the folder
 file_names = os.listdir(folder_path)
 
-main_cols = st.columns(2)
-with main_cols[0]:
+with st.sidebar:
     st.warning('* For the most part, graphs will only be generated for players with 3 or more data points to pull from.')
     st.warning('* Any Loss/Gain of Yardage on offense not due to passing or penalty is counted in each rushing related stat.')
-    st.warning('* Rush Efficacy describes the ratio of efficient carries to overall attempts.')
-with main_cols[1]:    
+    st.warning('* Rush Efficacy describes the ratio of efficient carries to overall attempts.')  
     st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
     st.warning('* Return Yardage is not yet being tracked.')
     st.warning('* Defensive analysis in the works for future reviews.')
@@ -226,7 +224,7 @@ with off_playbook_exp:
 #region player_eval
            
 with player_eval_exp:
-    cols = st.columns([0.05,0.225,0.225,0.225,0.225,0.05])
+    cols = st.columns([0.05,0.3,0.3,0.3,0.05])
     results = {}
     passing_df = df[df['action']=='rec']
     rushing_df = df[df['action']=='rush']
@@ -278,7 +276,7 @@ with player_eval_exp:
        
     sorted_data = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['plays'], reverse=True)}
     for i,player in enumerate(sorted_data):  
-        with cols[(i%4)+1]:  
+        with cols[(i%3)+1]:  
             with stylable_container(
                 key="container_with_border",
                 css_styles="""
@@ -293,7 +291,7 @@ with player_eval_exp:
                 st.markdown(f"<p style='text-align: center; color: white; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
                 image = "./pics/"+player+".jpg"
                 base64_image = get_image_as_base64(image)
-                markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="200" style="border-radius:10px;"></div>"""
+                markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="300" style="border-radius:10px;"></div>"""
                 st.markdown(markdown_str, unsafe_allow_html=True)
                 container_cols = st.columns([0.05,0.5,0.4,0.05])
                 with container_cols[1]:

@@ -118,7 +118,7 @@ with overall_off_exp:
     top =st.container()
     bot = st.container()
     with top:
-        cols = st.columns([0.1,0.4,0.1,0.1,0.1,0.1,0.1])
+        cols = st.columns([0.05,0.4,0.1,0.1,0.1,0.1,0.05])
         df = data.copy()
         # Determine Pass / Rush Ratio
         plays = len(df)

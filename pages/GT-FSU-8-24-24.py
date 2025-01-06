@@ -33,7 +33,7 @@ def create_circular_progress_bar(percentage, title_input, color_input):
     fig.add_trace(go.Pie(
         values=[1],
         hole=0.7,
-        marker_colors=['#3f403f', 'rgba(0,0,0,0)'],  # Grey and transparent
+        marker_colors=['#e6e5e3', 'rgba(0,0,0,0)'],  # Grey and transparent
         showlegend=False,
         textinfo='none'
     ))

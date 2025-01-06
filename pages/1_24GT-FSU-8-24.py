@@ -199,55 +199,78 @@ with off_playbook_exp:
     opp_terr_container = st.container()
     st.divider()
     red_zone_container = st.container()
-    cols = gt_terr_container.columns([0.5,0.5])
-    with cols[0]:
-        df = data.copy()
-        df_gt_terr = df[df['field_pos']<50]
-        df_gt_terr_first = df_gt_terr[df_gt_terr['down']==1]
-        df_gt_terr_first = df_gt_terr_first.sort_values(['action','yds'],ascending=True)
-        st.table(df_gt_terr_first)
-        df_gt_terr_third = df_gt_terr[df_gt_terr['down']==3]
-        df_gt_terr_third = df_gt_terr_third.sort_values(['action','yds'],ascending=True)
-        st.table(df_gt_terr_third)
-    with cols[1]:
-        add_vertical_space(3)
-        st.success('4/5 passes completed (80%) on 1st down in GT territory')
-        st.success('5/8 effective carries (62.5%) on 1st down in GT territory')
-        st.success('8/13 efficient movements (61.5%) of the ball on 1st down in GT territory.')
-        st.success('5/13 conversions (38.5%) on 1st down in GT territory. Approaching 40% with our Pass/Rush Ratio and efficacy is elite.')
-        add_vertical_space(12)
-        st.success('2/4 conversions (50%) on 3rd down in GT territory')
-    cols = opp_terr_container.columns([0.5,0.5])
-    with cols[0]:
-        df_opp_terr = df[(df['field_pos']>=50)&(df['field_pos']<80)]
-        df_opp_terr_first = df_opp_terr[df_opp_terr['down']==1]
-        df_opp_terr_first = df_opp_terr_first.sort_values(['action','yds'],ascending=True)
-        st.table(df_opp_terr_first)
-        df_opp_terr_third = df_opp_terr[df_opp_terr['down']==3]
-        df_opp_terr_third = df_opp_terr_third.sort_values(['action','yds'],ascending=True)
-        st.table(df_opp_terr_third)
-    with cols[1]:
-        add_vertical_space(3)
-        st.warning('3/7 efficient movements (42.9%) of the ball on 1st down in between midfield and the red zone. ')
-        st.error('0/7 conversions (0%) on 1st down in between midfield and the red zone.')
-        add_vertical_space(8)
-        st.success('3/4 efficient movements (75%) of the ball on 3rd down in between midfield and the redzone.')
-        st.success('2/4 conversions (50%) on 3rd down in between midfield and the redzone.')
-    cols = red_zone_container.columns([0.5,0.5])
-    with cols[0]:
-        df_red_zone = df[df['field_pos']>=80]
-        df_red_zone_first = df_red_zone[df_red_zone['down']==1]
-        df_red_zone_first = df_red_zone_first.sort_values(['action','yds'],ascending=True)
-        st.table(df_red_zone_first)
-        df_red_zone_third = df_red_zone[df_red_zone['down']==3]
-        df_red_zone_third = df_red_zone_third.sort_values(['action','yds'],ascending=True)
-        st.table(df_red_zone_third)
-    with cols[1]:
-        add_vertical_space(3)
-        st.success('3/6 efficient movements (50%) of the ball on 1st down in the redzone.')
-        st.warning('0 passes in 6 redzone 1st downs.')
-        add_vertical_space(6)
-        st.success('3rd and goal.... hand it off to Jamal.')
+    df = data.copy()
+
+    with gt_terr_container:
+        gt_terr_first_container = st.container()
+        gt_terr_third_container = st.container()
+        cols_first = gt_terr_first_container.columns(2)
+        cols_third = gt_terr_third_container.columns(2)
+        with cols_first[0]:
+            df_gt_terr = df[df['field_pos']<50]
+            df_gt_terr_first = df_gt_terr[df_gt_terr['down']==1]
+            df_gt_terr_first = df_gt_terr_first.sort_values(['action','yds'],ascending=True)
+            st.table(df_gt_terr_first)
+        with cols_first[1]:
+            add_vertical_space(2)
+            st.success('4/5 passes completed (80%) on 1st down in GT territory')
+            st.success('5/8 effective carries (62.5%) on 1st down in GT territory')
+            st.success('8/13 efficient movements (61.5%) of the ball on 1st down in GT territory.')
+            st.success('5/13 conversions (38.5%) on 1st down in GT territory. Approaching 40% with our Pass/Rush Ratio and efficacy is elite.')
+        with cols_third[0]:
+            df_gt_terr_third = df_gt_terr[df_gt_terr['down']==3]
+            df_gt_terr_third = df_gt_terr_third.sort_values(['action','yds'],ascending=True)
+            st.table(df_gt_terr_third)
+        with cols_third[1]:
+            add_vertical_space(1)
+            st.success('2/4 conversions (50%) on 3rd down in GT territory')
+         
+         
+    with opp_terr_container:   
+        opp_terr_first_container = st.container()
+        opp_terr_third_container = st.container()
+        cols_first = opp_terr_first_container.columns(2)
+        cols_third = opp_terr_third_container.columns(2)
+        with cols_first[0]:
+            df_opp_terr = df[(df['field_pos']>=50)&(df['field_pos']<80)]
+            df_opp_terr_first = df_opp_terr[df_opp_terr['down']==1]
+            df_opp_terr_first = df_opp_terr_first.sort_values(['action','yds'],ascending=True)
+            st.table(df_opp_terr_first)
+        with cols_first[1]:    
+            add_vertical_space(2)
+            st.warning('3/7 efficient movements (42.9%) of the ball on 1st down in between midfield and the red zone. ')
+            st.error('0/7 conversions (0%) on 1st down in between midfield and the red zone.')
+        with cols_third[0]:  
+            df_opp_terr_third = df_opp_terr[df_opp_terr['down']==3]
+            df_opp_terr_third = df_opp_terr_third.sort_values(['action','yds'],ascending=True)
+            st.table(df_opp_terr_third)
+        with cols_third[1]:
+            add_vertical_space(1)
+            st.success('3/4 efficient movements (75%) of the ball on 3rd down in between midfield and the redzone.')
+            st.success('2/4 conversions (50%) on 3rd down in between midfield and the redzone.')
+    
+    with red_zone_container:
+        red_zone_first_container = st.container()
+        red_zone_third_container = st.container()
+        cols_first = red_zone_first_container.columns(2)
+        cols_third = red_zone_third_container.columns(2)
+ 
+        with cols_first[0]:
+            df_red_zone = df[df['field_pos']>=80]
+            df_red_zone_first = df_red_zone[df_red_zone['down']==1]
+            df_red_zone_first = df_red_zone_first.sort_values(['action','yds'],ascending=True)
+            st.table(df_red_zone_first)
+        with cols_first[1]:
+            add_vertical_space(2)
+            st.success('3/6 efficient movements (50%) of the ball on 1st down in the redzone.')
+            st.warning('0 passes in 6 redzone 1st downs.') 
+        with cols_third[0]:    
+            df_red_zone_third = df_red_zone[df_red_zone['down']==3]
+            df_red_zone_third = df_red_zone_third.sort_values(['action','yds'],ascending=True)
+            st.table(df_red_zone_third)
+        with cols_third[1]:
+            add_vertical_space(1)
+            st.success('3rd and goal.... hand it off to Jamal.')
         
         
 #endregion

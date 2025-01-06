@@ -118,7 +118,7 @@ with overall_off_exp:
     top =st.container()
     bot = st.container()
     with top:
-        cols = st.columns([0.05,0.4,0.1,0.1,0.1,0.1,0.05])
+        cols = st.columns([0.05,0.4,0.1,0.1,0.1,0.1,0.1,0.05])
         df = data.copy()
         # Determine Pass / Rush Ratio
         plays = len(df)
@@ -138,24 +138,24 @@ with overall_off_exp:
         eff_car_df = rushing_df[(rushing_df['yds']>5.0) | (rushing_df['converted']==True)]
         eff_car_pct = len(eff_car_df)/len(rushing_df)
         for i,col in enumerate(cols):
-            if i < 2:
+            if i < 3:
                 continue
             with col:
                 add_vertical_space(2)
         with cols[1]:
             st.dataframe(df)
-        plays_total = cols[2].metric(label='Plays',value=plays,delta=0)
-        drives = cols[3].metric(label='Drives',value=7,delta=0)
-        scoring_drives = cols[4].metric(label='Scoring Drives',value=4,delta=0)
-        points = cols[5].metric(label='Points',value=24,delta=0)
-        pass_pct = cols[2].metric(label='Pass %',value=round(p_ratio,1),delta=0)
-        pass_avg = cols[3].metric(label="Avg Rec Yds / Att", value=round(p_avg,1), delta=0)
-        pass_cmp = cols[4].metric(label='Completion %',value=round(comp_pct,2)*100,delta=0)
-        pass_total = cols[5].metric(label='Total Passing (yds)',value=(round(passing_df['yds'].sum(),2)),delta=0)
-        rush_pct = cols[2].metric(label='Rush %',value=round(r_ratio,1),delta=0)
-        rush_avg = cols[3].metric(label="Avg Rush Yds / Att", value=round(r_avg,1), delta=0)
-        rush_eff = cols[4].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
-        rush_total = cols[5].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
+        plays_total = cols[3].metric(label='Plays',value=plays,delta=0)
+        drives = cols[4].metric(label='Drives',value=7,delta=0)
+        scoring_drives = cols[5].metric(label='Scoring Drives',value=4,delta=0)
+        points = cols[6].metric(label='Points',value=24,delta=0)
+        pass_pct = cols[3].metric(label='Pass %',value=round(p_ratio,1),delta=0)
+        pass_avg = cols[4].metric(label="Avg Rec Yds / Att", value=round(p_avg,1), delta=0)
+        pass_cmp = cols[5].metric(label='Completion %',value=round(comp_pct,2)*100,delta=0)
+        pass_total = cols[6].metric(label='Total Passing (yds)',value=(round(passing_df['yds'].sum(),2)),delta=0)
+        rush_pct = cols[3].metric(label='Rush %',value=round(r_ratio,1),delta=0)
+        rush_avg = cols[4].metric(label="Avg Rush Yds / Att", value=round(r_avg,1), delta=0)
+        rush_eff = cols[5].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
+        rush_total = cols[6].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
 
     with bot:
         cols = st.columns([0.45,0.45,0.1])

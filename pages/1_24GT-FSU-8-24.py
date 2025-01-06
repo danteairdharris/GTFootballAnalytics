@@ -10,10 +10,23 @@ from streamlit_extras.add_vertical_space import add_vertical_space
 from streamlit_extras.metric_cards import style_metric_cards
 
 st.set_page_config(layout='wide')
-folder_path = "./data"
+
+# Define notes file path
+notes_file_path = "notes.txt"
+
 data = pd.read_csv('./data/FSU-GT-08-24-24-PLAYS')
 
 #region functions
+
+# Read notes from the file
+def load_notes(file_path):
+    try:
+        with open(file_path, "r") as file:
+            notes = file.readlines()
+            return [note.strip() for note in notes]
+    except FileNotFoundError:
+        return ["Notes file not found. Please check the file path."]
+    
 
 def get_image_as_base64(image_path):
     with open(image_path, "rb") as image_file:
@@ -80,16 +93,10 @@ dummy_pie = create_circular_progress_bar(100,'dummy','green')
 
 header = st.container()
 header_cols = header.columns(6)
-
+notes = load_notes(notes_file_path)
 with header_cols[0].popover('Notes', use_container_width=True):
-    st.warning('* Dark Mode may cause visibility issues. Switch to light mode by clicking on the 3 vertical dots in the top right corner of the webapp.')
-    st.warning('* For the most part, graphs will only be generated for players with 3 or more data points to pull from.')
-    st.warning('* Any Loss/Gain of Yardage on offense not due to passing or penalty is counted in each rushing related stat.')
-    st.warning('* Rush Efficacy describes the ratio of efficient carries to overall attempts.')  
-    st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
-    st.warning('* Return Yardage is not yet being tracked.')
-    st.warning('* Kicking Points are not yet being tracked.')
-    st.warning('* Defensive analysis in the works for future reviews.')
+    for note in notes:
+        st.warning('* '+note)
 
                 
 editor_exp = st.expander('editor')

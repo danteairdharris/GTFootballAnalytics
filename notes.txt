@@ -1,0 +1,8 @@
+Dark Mode may cause visibility issues. Switch to light mode by clicking on the 3 vertical dots in the top right corner of the webapp.
+For the most part, graphs will only be generated for players with 3 or more data points to pull from.
+Any Loss/Gain of Yardage on offense not due to passing or penalty is counted in each rushing related stat.
+Rush Efficacy describes the ratio of efficient carries to overall attempts.
+Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.
+Return Yardage is not yet being tracked.
+Kicking Points are not yet being tracked.
+Defensive analysis in the works for future reviews.

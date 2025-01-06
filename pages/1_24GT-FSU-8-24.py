@@ -418,18 +418,20 @@ with player_yot_exp:
             
 #endregion    
 
-st.warning('Defensive Analysis work in progress... Will begin to populate expanders when finished with offensive review of each game.')
+# TO DO graph yardage + conversion rate by time
 
-defensive_review_exp = st.expander('defensive review')
-def_eval_exp = st.expander('defensive player eval')
+st.warning('Will begin defensive analysis when finished with each offensive review.')
 
-#region TO DO
+# defensive_review_exp = st.expander('defensive review')
+# def_eval_exp = st.expander('defensive player eval')
 
-with defensive_review_exp:
-    st.write('work in progress')
+
+
+# with defensive_review_exp:
+#     st.write('work in progress')
     
-with def_eval_exp:
-    st.write('work in progress')
+# with def_eval_exp:
+#     st.write('work in progress')
 
-#endregion
+
           

@@ -169,7 +169,7 @@ with off_playbook_exp:
     opp_terr_container = st.container()
     st.divider()
     red_zone_container = st.container()
-    cols = gt_terr_container.columns([0.5,0.25,0.25])
+    cols = gt_terr_container.columns([0.5,0.5])
     with cols[0]:
         df = data.copy()
         df_gt_terr = df[df['field_pos']<50]
@@ -187,7 +187,7 @@ with off_playbook_exp:
         st.error('5/13 conversions (38.5%) on 1st down in GT territory. Should be > 40% with our Pass/Rush Ratio and efficacy.')
         add_vertical_space(12)
         st.success('2/4 conversions (50%) on 3rd down in GT territory')
-    cols = opp_terr_container.columns([0.5,0.25,0.25])
+    cols = opp_terr_container.columns([0.5,0.5])
     with cols[0]:
         df_opp_terr = df[(df['field_pos']>=50)&(df['field_pos']<80)]
         df_opp_terr_first = df_opp_terr[df_opp_terr['down']==1]
@@ -202,7 +202,7 @@ with off_playbook_exp:
         st.error('0/7 conversions (0%) on 1st down in between midfield and the red zone.')
         add_vertical_space(8)
         st.success('3/4 efficient movements (75%) of the ball on 3rd down in between midfield and the redzone.')
-    cols = red_zone_container.columns([0.5,0.25,0.25])
+    cols = red_zone_container.columns([0.5,0.5])
     with cols[0]:
         df_red_zone = df[df['field_pos']>=80]
         df_red_zone_first = df_red_zone[df_red_zone['down']==1]

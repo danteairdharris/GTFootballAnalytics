@@ -172,7 +172,7 @@ with dashboard_container:
                 """,
         ):
             add_vertical_space(4)
-            metric_container_cols = st.columns([0.1,0.2,0.2,0.2,0.2,0.1])
+            metric_container_cols = st.columns([0.06,0.22,0.22,0.22,0.22,0.06])
             plays_total =    metric_container_cols[1].metric(label='Plays',value=plays,delta=0)
             drives =         metric_container_cols[2].metric(label='Drives',value=7,delta=0)
             scoring_drives = metric_container_cols[3].metric(label='Scoring Drives',value=4,delta=0)

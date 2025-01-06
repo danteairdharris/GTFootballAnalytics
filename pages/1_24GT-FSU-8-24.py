@@ -89,15 +89,13 @@ with header_cols[0].popover('Notes', use_container_width=True):
     st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
     st.warning('* Return Yardage is not yet being tracked.')
     st.warning('* Defensive analysis in the works for future reviews.')
-    
-current_theme = st.get_option("theme.base")
-st.write(f"Current Theme: {current_theme}")
+
                 
 editor_exp = st.expander('editor')
 dashboard_container = st.container()
-off_playbook_exp = st.expander('offensive playbook')
-player_eval_exp = st.expander('individual player eval')
-player_yot_exp = st.expander('individual player yards over time')
+off_playbook_exp = st.expander('offensive review')
+player_eval_exp = st.expander('offensive player eval')
+player_yot_exp = st.expander('offensive player yards over time')
 
 #region editor
 
@@ -216,7 +214,7 @@ with off_playbook_exp:
         st.success('4/5 passes completed (80%) on 1st down in GT territory')
         st.success('5/8 effective carries (62.5%) on 1st down in GT territory')
         st.success('8/13 efficient movements (61.5%) of the ball on 1st down in GT territory.')
-        st.error('5/13 conversions (38.5%) on 1st down in GT territory. Should be > 40% with our Pass/Rush Ratio and efficacy.')
+        st.success('5/13 conversions (38.5%) on 1st down in GT territory. Approaching 40% with our Pass/Rush Ratio and efficacy is elite.')
         add_vertical_space(12)
         st.success('2/4 conversions (50%) on 3rd down in GT territory')
     cols = opp_terr_container.columns([0.5,0.5])
@@ -234,6 +232,7 @@ with off_playbook_exp:
         st.error('0/7 conversions (0%) on 1st down in between midfield and the red zone.')
         add_vertical_space(8)
         st.success('3/4 efficient movements (75%) of the ball on 3rd down in between midfield and the redzone.')
+        st.success('2/4 conversions (50%) on 3rd down in between midfield and the redzone.')
     cols = red_zone_container.columns([0.5,0.5])
     with cols[0]:
         df_red_zone = df[df['field_pos']>=80]
@@ -336,20 +335,20 @@ with player_eval_exp:
                         if sorted_data[player]['targets'] > 0:
                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
                             fig = create_circular_progress_bar(cmp_pct, 'rec_eff','green')
-                            st.plotly_chart(fig,use_container_width=True)
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
                         if sorted_data[player]['car'] > 0:
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
                             fig = create_circular_progress_bar(eff_car_pct, 'car_eff', 'blue')
-                            st.plotly_chart(fig,use_container_width=True)
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff')
                     else:
                         if sorted_data[player]['att'] > 0:
                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
                             fig = create_circular_progress_bar(cmp_pct, 'cmp','orange')
-                            st.plotly_chart(fig,use_container_width=True)
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
                         if sorted_data[player]['car'] > 0:
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
                             fig = create_circular_progress_bar(100-eff_car_pct, 'car_eff', 'blue')
-                            st.plotly_chart(fig,use_container_width=True)
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff')
                     
     #endregion
     
@@ -396,5 +395,18 @@ with player_yot_exp:
             
 #endregion    
 
-st.warning('Defensive Analysis work in progress...')
+st.warning('Defensive Analysis work in progress... Will begin to populate expanders when finished with offensive review of each game.')
+
+defensive_review_exp = st.expander('defensive review')
+def_eval_exp = st.expander('defensive player eval')
+
+#region TO DO
+
+with defensive_review_exp:
+    st.write('work in progress')
+    
+with def_eval_exp:
+    st.write('work in progress')
+
+#endregion
           

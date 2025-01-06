@@ -89,6 +89,9 @@ with header_cols[0].popover('Notes', use_container_width=True):
     st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
     st.warning('* Return Yardage is not yet being tracked.')
     st.warning('* Defensive analysis in the works for future reviews.')
+    
+current_theme = st.get_option("theme.base")
+st.write(f"Current Theme: {current_theme}")
                 
 editor_exp = st.expander('editor')
 dashboard_container = st.container()

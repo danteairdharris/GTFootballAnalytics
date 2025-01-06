@@ -154,7 +154,7 @@ with dashboard_container:
                 }
                 """,
         ):
-            plays_container_cols = st.columns([0.06,0.88,0.06])
+            plays_container_cols = st.columns([0.05,0.9,0.05])
             with plays_container_cols[1]:
                 add_vertical_space(2)
                 st.write(df)

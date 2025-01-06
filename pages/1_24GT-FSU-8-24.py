@@ -7,6 +7,7 @@ import base64
 import plotly.graph_objects as go
 from streamlit_extras.stylable_container import stylable_container
 from streamlit_extras.add_vertical_space import add_vertical_space
+from streamlit_extras.metric_cards import style_metric_cards
 
 st.set_page_config(layout='wide')
 folder_path = "./data"
@@ -25,7 +26,7 @@ def create_circular_progress_bar(percentage, title_input, color_input):
     if color_input == 'green':
         color = '#0afa46'
     if color_input == 'blue':
-        color = '#2104d9'
+        color = '#2499ff'
     if color_input == 'orange':
         color = '#e38c00'
 
@@ -33,17 +34,23 @@ def create_circular_progress_bar(percentage, title_input, color_input):
     fig.add_trace(go.Pie(
         values=[1],
         hole=0.7,
-        marker_colors=['#e6e5e3', 'rgba(0,0,0,0)'],  # Grey and transparent
+        marker=dict(
+        colors=['#e6e5e3'],  # Solid grey for the background
+        line=dict(color='black', width=1) 
+        ),
         showlegend=False,
         textinfo='none'
     ))
 
     # Add a partial circle for the progress
     fig.add_trace(go.Pie(
-        values=[percentage, 100 - percentage],
+        values=[percentage, 100-percentage],
         hole=0.7,
-        marker_colors=[color, 'rgba(0,0,0,0)'],  # Green and transparent
-        direction='counterclockwise',
+        marker=dict(
+        colors=[color, 'rgba(0,0,0,0)'],  
+        line=dict(color='black', width=1)  
+        ),
+        direction='clockwise',
         rotation=0,  # Start from the top
         showlegend=False,
         textinfo='none'
@@ -62,7 +69,7 @@ def create_circular_progress_bar(percentage, title_input, color_input):
             'size': 16        # Slightly smaller font size
         }
         },
-        margin=dict(t=20, b=0, l=0, r=0),
+        margin=dict(t=20, b=5, l=0, r=0),
         width=75,
         height=75,
         paper_bgcolor="rgba(0,0,0,0)"  # Transparent background
@@ -72,19 +79,20 @@ def create_circular_progress_bar(percentage, title_input, color_input):
 
 #endregion
 
-# Get all file names in the folder
-file_names = os.listdir(folder_path)
+header = st.container()
+header_cols = header.columns(6)
 
-with st.sidebar:
+with header_cols[0].popover('Notes', use_container_width=True):
+    st.warning('* Dark Mode may cause visibility issues. Switch to light mode by clicking on the 3 vertical dots in the top right corner of the webapp.')
     st.warning('* For the most part, graphs will only be generated for players with 3 or more data points to pull from.')
     st.warning('* Any Loss/Gain of Yardage on offense not due to passing or penalty is counted in each rushing related stat.')
     st.warning('* Rush Efficacy describes the ratio of efficient carries to overall attempts.')  
     st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
     st.warning('* Return Yardage is not yet being tracked.')
     st.warning('* Defensive analysis in the works for future reviews.')
-
+                
 editor_exp = st.expander('editor')
-overall_off_exp = st.expander('overall offense review')
+dashboard_container = st.container()
 off_playbook_exp = st.expander('offensive playbook')
 player_eval_exp = st.expander('individual player eval')
 player_yot_exp = st.expander('individual player yards over time')
@@ -114,51 +122,73 @@ player_yot_exp = st.expander('individual player yards over time')
 #endregion
 
 #region overall_off
-with overall_off_exp:
-    top =st.container()
-    bot = st.container()
-    with top:
-        cols = st.columns([0.05,0.4,0.1,0.1,0.1,0.1,0.1,0.05])
-        df = data.copy()
-        # Determine Pass / Rush Ratio
-        plays = len(df)
-        passing_df = df[df['action']=='rec']
-        rushing_df = df[df['action']=='rush']
-        # plays == len(passing_df)+len(rushing_df)
-        p_ratio = (len(passing_df)/plays)*100
-        r_ratio = (len(rushing_df)/plays)*100
-        # Avg Yds per Rec
-        p_avg = passing_df['yds'].mean()
-        # Avg Yds per Carry
-        r_avg = rushing_df['yds'].mean()
-        # Completion %
-        comp_df = passing_df[passing_df['completed']==True]
-        comp_pct = len(comp_df)/len(passing_df)
-        # Effective Carry %
-        eff_car_df = rushing_df[(rushing_df['yds']>5.0) | (rushing_df['converted']==True)]
-        eff_car_pct = len(eff_car_df)/len(rushing_df)
-        for i,col in enumerate(cols):
-            if i < 3:
-                continue
-            with col:
-                add_vertical_space(2)
-        with cols[1]:
-            st.dataframe(df)
-        plays_total = cols[3].metric(label='Plays',value=plays,delta=0)
-        drives = cols[4].metric(label='Drives',value=7,delta=0)
-        scoring_drives = cols[5].metric(label='Scoring Drives',value=4,delta=0)
-        points = cols[6].metric(label='Points',value=24,delta=0)
-        pass_pct = cols[3].metric(label='Pass %',value=round(p_ratio,1),delta=0)
-        pass_avg = cols[4].metric(label="Avg Rec Yds / Att", value=round(p_avg,1), delta=0)
-        pass_cmp = cols[5].metric(label='Completion %',value=round(comp_pct,2)*100,delta=0)
-        pass_total = cols[6].metric(label='Total Passing (yds)',value=(round(passing_df['yds'].sum(),2)),delta=0)
-        rush_pct = cols[3].metric(label='Rush %',value=round(r_ratio,1),delta=0)
-        rush_avg = cols[4].metric(label="Avg Rush Yds / Att", value=round(r_avg,1), delta=0)
-        rush_eff = cols[5].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
-        rush_total = cols[6].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
 
-    with bot:
-        cols = st.columns([0.45,0.45,0.1])
+with dashboard_container:
+    cols = st.columns([0.4,0.6])
+    df = data.copy()
+    # Determine Pass / Rush Ratio
+    plays = len(df)
+    passing_df = df[df['action']=='rec']
+    rushing_df = df[df['action']=='rush']
+    # plays == len(passing_df)+len(rushing_df)
+    p_ratio = (len(passing_df)/plays)*100
+    r_ratio = (len(rushing_df)/plays)*100
+    # Avg Yds per Rec
+    p_avg = passing_df['yds'].mean()
+    # Avg Yds per Carry
+    r_avg = rushing_df['yds'].mean()
+    # Completion %
+    comp_df = passing_df[passing_df['completed']==True]
+    comp_pct = len(comp_df)/len(passing_df)
+    # Effective Carry %
+    eff_car_df = rushing_df[(rushing_df['yds']>5.0) | (rushing_df['converted']==True)]
+    eff_car_pct = len(eff_car_df)/len(rushing_df)
+    
+    with cols[0]:
+        with stylable_container(
+            key="container_with_border_black",
+            css_styles="""
+                {
+                    border: 1px solid rgba(100, 100, 100, 0.5);
+                    border-radius: 0.5rem;
+                    padding: 1px;
+                }
+                """,
+        ):
+            plays_container_cols = st.columns([0.06,0.88,0.06])
+            with plays_container_cols[1]:
+                add_vertical_space(2)
+                st.write(df)
+                add_vertical_space(1)
+    
+    with cols[1]:
+        with stylable_container(
+            key="container_with_border_black",
+            css_styles="""
+                {
+                    border: 1px solid rgba(100, 100, 100, 0.5);
+                    border-radius: 0.5rem;
+                    padding: 20px;
+                }
+                """,
+        ):
+            add_vertical_space(3)
+            metric_container_cols = st.columns([0.1,0.2,0.2,0.2,0.2,0.1])
+            plays_total =    metric_container_cols[1].metric(label='Plays',value=plays,delta=0)
+            drives =         metric_container_cols[2].metric(label='Drives',value=7,delta=0)
+            scoring_drives = metric_container_cols[3].metric(label='Scoring Drives',value=4,delta=0)
+            points =         metric_container_cols[4].metric(label='Points',value=24,delta=0)
+            pass_pct =       metric_container_cols[1].metric(label='Pass %',value=round(p_ratio,1),delta=0)
+            pass_avg =       metric_container_cols[2].metric(label="Avg Rec Yds / Att", value=round(p_avg,1), delta=0)
+            pass_cmp =       metric_container_cols[3].metric(label='Completion %',value=round(comp_pct,2)*100,delta=0)
+            pass_total =     metric_container_cols[4].metric(label='Total Passing (yds)',value=(round(passing_df['yds'].sum(),2)),delta=0)
+            rush_pct =       metric_container_cols[1].metric(label='Rush %',value=round(r_ratio,1),delta=0)
+            rush_avg =       metric_container_cols[2].metric(label="Avg Rush Yds / Att", value=round(r_avg,1), delta=0)
+            rush_eff =       metric_container_cols[3].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
+            rush_total =     metric_container_cols[4].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
+            style_metric_cards()
+            add_vertical_space(1)
+
 #endregion
 
 #region off_playbook
@@ -281,7 +311,7 @@ with player_eval_exp:
                 key="container_with_border",
                 css_styles="""
                     {
-                        border: 3px solid rgba(255, 255, 255, 0.2);
+                        border: 2px solid rgba(100, 100, 100, 0.5);
                         border-radius: 0.5rem;
                         padding: calc(1em - 1px)
                         
@@ -351,9 +381,6 @@ with player_yot_exp:
                 
             
 #endregion    
-    
 
-
-
-
-
+st.warning('Defensive Analysis work in progress...')
+          

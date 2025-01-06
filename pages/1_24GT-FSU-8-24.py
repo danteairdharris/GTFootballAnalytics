@@ -351,20 +351,25 @@ with player_eval_exp:
     
 #region player_yot           
 with player_yot_exp:
-    cols = st.columns([0.05,0.3,0.3,0.3,0.05])
+    top = st.container()
+    mid = st.container()
+    bot = st.container()
+    top_cols = top.columns([0.05,0.3,0.3,0.3,0.05])
+    mid_cols = mid.columns([0.05,0.3,0.3,0.3,0.05])
+    bot_cols = bot.columns([0.05,0.3,0.3,0.3,0.05])
     df = pd.read_csv('./data/FSU-GT-08-24-24-PLAYS')
     skill_players = df['player'].unique().tolist()
     i = -1
-    cols[1].success('consistent! efficient movements of the ball agnostic of game clock.')
-    cols[2].warning('low production but dependable target.')
-    cols[3].warning('potentially detrimental incompletions. productive in clutch time.')
+    top_cols[1].success('consistent! efficient movements of the ball agnostic of game clock.')
+    top_cols[2].warning('low production but dependable target.')
+    top_cols[3].warning('potentially detrimental incompletions. productive in clutch time.')
     for player in skill_players:
         i += 1
         df_player = df[df['player']==player]  
         if len(df_player) < 3:
             i -= 1
             continue
-        with cols[(i%3)+1]:
+        with mid_cols[(i%3)+1]:
             # Create a new figure for each player
             fig, ax = plt.subplots()
             # Plot yards vs. index for the current player (using index as x-axis)
@@ -380,8 +385,8 @@ with player_yot_exp:
             ax.legend()
             # Display the plot in Streamlit
             st.pyplot(fig)
-    cols[1].success('great balance for our offense.')
-    cols[2].success('RB2!')
+    bot_cols[1].success('great balance for our offense.')
+    bot_cols[2].success('RB2!')
 
                 
             

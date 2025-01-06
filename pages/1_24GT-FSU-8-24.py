@@ -21,61 +21,60 @@ def get_image_as_base64(image_path):
     return encoded_string
 
 def create_circular_progress_bar(percentage, title_input, color_input):
-    # Create a figure
+    # Ensure a fresh figure every time
     fig = go.Figure()
-    if color_input == 'green':
-        color = '#0afa46'
-    if color_input == 'blue':
-        color = '#2499ff'
-    if color_input == 'orange':
-        color = '#e38c00'
+
+    # Determine the color based on input
+    color = '#0afa46' if color_input == 'green' else (
+        '#2499ff' if color_input == 'blue' else '#e38c00'
+    )
+
 
     # Add a full circle for the background
     fig.add_trace(go.Pie(
         values=[1],
         hole=0.7,
-        marker=dict(
-        colors=['#e6e5e3'],  # Solid grey for the background
-        line=dict(color='black', width=1) 
-        ),
+        marker_colors=['#e6e5e3'],
         showlegend=False,
         textinfo='none'
     ))
 
     # Add a partial circle for the progress
     fig.add_trace(go.Pie(
-        values=[percentage, 100-percentage],
+        values=[percentage/100, (1-(percentage/100))],  # Correctly map progress and remainder
         hole=0.7,
         marker=dict(
-        colors=[color, 'rgba(0,0,0,0)'],  
-        line=dict(color='black', width=1)  
+            colors=[color, 'rgba(0,0,0,0)'],  # Progress color and transparent remainder
+            line=dict(color='black', width=1)  # Black outline
         ),
-        direction='clockwise',
-        rotation=0,  # Start from the top
+        direction='counterclockwise',
+        rotation=0,  # Start from the top of the circle
         showlegend=False,
         textinfo='none'
     ))
 
-    # Update layout to make the background transparent
+    # Update layout to make the background transparent and add a title
     fig.update_layout(
         title={
-            'text': f"{title_input} : {percentage}%",
-            'y': 0.9999,  # Position the title closer to the top
+            'text': f"{title_input}: {percentage}%",
+            'y': 0.95,  # Position the title closer to the top
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top',
             'font': {
-            'color': 'gray',  # Gray color for the title
-            'size': 16        # Slightly smaller font size
-        }
+                'color': 'gray',  # Gray color for the title
+                'size': 12        # Smaller font size
+            }
         },
         margin=dict(t=20, b=5, l=0, r=0),
-        width=75,
-        height=75,
+        width=100,  # Adjust size for better alignment
+        height=100,
         paper_bgcolor="rgba(0,0,0,0)"  # Transparent background
     )
 
     return fig
+
+dummy_pie = create_circular_progress_bar(100,'dummy','green')
 
 #endregion
 
@@ -124,7 +123,7 @@ player_yot_exp = st.expander('individual player yards over time')
 #region overall_off
 
 with dashboard_container:
-    cols = st.columns([0.4,0.6])
+    cols = st.columns([0.5,0.5])
     df = data.copy()
     # Determine Pass / Rush Ratio
     plays = len(df)
@@ -305,10 +304,11 @@ with player_eval_exp:
         results[player]['rush_yds'] = rush_yds
        
     sorted_data = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['plays'], reverse=True)}
+
     for i,player in enumerate(sorted_data):  
         with cols[(i%3)+1]:  
             with stylable_container(
-                key="container_with_border",
+                key=f"container_with_border_{player}",
                 css_styles="""
                     {
                         border: 2px solid rgba(100, 100, 100, 0.5);
@@ -318,7 +318,7 @@ with player_eval_exp:
                     }
                     """,
                 ):
-                st.markdown(f"<p style='text-align: center; color: white; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
                 image = "./pics/"+player+".jpg"
                 base64_image = get_image_as_base64(image)
                 markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="300" style="border-radius:10px;"></div>"""
@@ -333,15 +333,20 @@ with player_eval_exp:
                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
                             fig = create_circular_progress_bar(cmp_pct, 'rec_eff','green')
                             st.plotly_chart(fig,use_container_width=True)
+                        if sorted_data[player]['car'] > 0:
+                            eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            fig = create_circular_progress_bar(eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True)
                     else:
                         if sorted_data[player]['att'] > 0:
                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
                             fig = create_circular_progress_bar(cmp_pct, 'cmp','orange')
                             st.plotly_chart(fig,use_container_width=True)
-                    if sorted_data[player]['car'] > 0:
-                        eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
-                        fig = create_circular_progress_bar(eff_car_pct, 'car_eff', 'blue')
-                        st.plotly_chart(fig,use_container_width=True)
+                        if sorted_data[player]['car'] > 0:
+                            eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            fig = create_circular_progress_bar(100-eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True)
+                    
     #endregion
     
 #region player_yot           

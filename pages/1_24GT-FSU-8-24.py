@@ -321,10 +321,11 @@ with player_eval_exp:
                 st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
                 image = "./pics/"+player+".jpg"
                 base64_image = get_image_as_base64(image)
-                markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="300" style="border-radius:10px;"></div>"""
+                markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="250" style="border-radius:10px;"></div>"""
                 st.markdown(markdown_str, unsafe_allow_html=True)
                 container_cols = st.columns([0.05,0.5,0.4,0.05])
                 with container_cols[1]:
+                    add_vertical_space(1)
                     st.write(sorted_data[player])
                 with container_cols[2]:
                     add_vertical_space(2)

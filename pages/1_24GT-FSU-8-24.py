@@ -88,6 +88,7 @@ with header_cols[0].popover('Notes', use_container_width=True):
     st.warning('* Rush Efficacy describes the ratio of efficient carries to overall attempts.')  
     st.warning('* Efficient movements of the ball describe plays that advance the ball >= 5 yards or convert.')
     st.warning('* Return Yardage is not yet being tracked.')
+    st.warning('* Kicking Points are not yet being tracked.')
     st.warning('* Defensive analysis in the works for future reviews.')
 
                 

@@ -346,7 +346,7 @@ with player_eval_exp:
         results[player]['rec'] = len(df_player_cmp)
         results['king']['cmp'] += len(df_player_cmp)
         # Yds
-        rec_yds = df_player_cmp['yds'].sum()
+        rec_yds = int(df_player_cmp['yds'].sum())
         results[player]['rec_yds'] = rec_yds
         
     #QB Edge Cases

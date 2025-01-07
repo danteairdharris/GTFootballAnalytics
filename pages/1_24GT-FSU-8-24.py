@@ -95,7 +95,6 @@ def create_semi_circular_gauge(percentage, title_input, color_input):
     fig.add_trace(go.Indicator(
         mode="gauge+number",
         value=percentage,
-        title={'text': f"{title_input}: {percentage}%"},
         gauge={
             'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
             'bar': {'color': color},  # Progress bar color
@@ -108,12 +107,12 @@ def create_semi_circular_gauge(percentage, title_input, color_input):
                 'thickness': 0.75,
                 'value': percentage
             }
-        }
+        },
     ))
 
     # Update layout for a semi-circle effect
     fig.update_layout(
-        margin=dict(t=10, b=10, l=0, r=10),
+        margin=dict(t=10, b=10, l=10, r=10),
         width=100,
         height=75,
         paper_bgcolor="rgba(0,0,0,0)",  # Transparent background
@@ -396,19 +395,23 @@ with player_eval_exp:
                     add_vertical_space(4)
                     if player != 'king':
                         if sorted_data[player]['targets'] > 0:
+                            add_vertical_space(1)
                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
                             fig = create_semi_circular_gauge(cmp_pct, 'rec_eff','green')
                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
+                            add_vertical_space(1)
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
                             fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
                             st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
                     else:
                         if sorted_data[player]['att'] > 0:
+                            add_vertical_space(1)
                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
                             fig = create_semi_circular_gauge(cmp_pct, 'cmp','orange')
                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
+                            add_vertical_space(1)
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
                             fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
                             st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)

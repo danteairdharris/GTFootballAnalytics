@@ -350,7 +350,7 @@ with player_eval_exp:
         results[player]['rec_yds'] = rec_yds
         
     #QB Edge Cases
-    results['king']['pass_yds'] = passing_df['yds'].sum()-1
+    results['king']['pass_yds'] = int(passing_df['yds'].sum()-1)
     results['king']['att'] = len(passing_df)-1
     results['king']['plays'] = len(passing_df)-1
     results['king']['cmp'] -= 1
@@ -377,7 +377,7 @@ with player_eval_exp:
         df_player_eff = df_player_rush[(df_player_rush['yds']>5.0) | (df_player_rush['converted']==True)]
         results[player]['eff_car'] = len(df_player_eff)
         # Yds
-        rush_yds = df_player_rush['yds'].sum()
+        rush_yds = int(df_player_rush['yds'].sum())
         results[player]['rush_yds'] = rush_yds
        
     sorted_data = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['plays'], reverse=True)}

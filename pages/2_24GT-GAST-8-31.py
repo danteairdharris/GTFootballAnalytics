@@ -53,13 +53,13 @@ def create_circular_progress_bar(percentage, title_input, color_input):
 
     # Add a partial circle for the progress
     fig.add_trace(go.Pie(
-        values=[percentage/100, (1-(percentage/100))],  # Correctly map progress and remainder
+        values=[percentage, 100-percentage],  # Correctly map progress and remainder
         hole=0.7,
         marker=dict(
             colors=[color, 'rgba(0,0,0,0)'],  # Progress color and transparent remainder
             line=dict(color='black', width=1)  # Black outline
         ),
-        direction='counterclockwise',
+        direction='clockwise',
         rotation=0,  # Start from the top of the circle
         showlegend=False,
         textinfo='none'
@@ -86,7 +86,44 @@ def create_circular_progress_bar(percentage, title_input, color_input):
 
     return fig
 
-dummy_pie = create_circular_progress_bar(100,'dummy','green')
+def create_semi_circular_gauge(percentage, title_input, color_input):
+    # Determine the color based on input
+    color = '#0afa46' if color_input == 'green' else (
+        '#2499ff' if color_input == 'blue' else '#e38c00'
+    )
+
+    # Create a semi-circular gauge
+    fig = go.Figure()
+
+    # Add the gauge
+    fig.add_trace(go.Indicator(
+        mode="gauge+number",
+        value=percentage,
+        title={'text': f"{title_input}: {percentage}%"},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+            'bar': {'color': color},  # Progress bar color
+            'bgcolor': "white",  # Background color
+            'steps': [
+                {'range': [0, 100], 'color': '#e6e5e3'}  # Background color for gauge
+            ],
+            'threshold': {
+                'line': {'color': color, 'width': 4},
+                'thickness': 0.75,
+                'value': percentage
+            }
+        }
+    ))
+
+    # Update layout for a semi-circle effect
+    fig.update_layout(
+        margin=dict(t=10, b=10, l=0, r=10),
+        width=100,
+        height=75,
+        paper_bgcolor="rgba(0,0,0,0)",  # Transparent background
+    )
+
+    return fig
 
 #endregion
 
@@ -123,7 +160,6 @@ player_yot_exp = st.expander('offensive player yards over time')
 #             st.rerun()
 
 #endregion
-
 
 #region overall_off
 
@@ -194,7 +230,6 @@ with dashboard_container:
             add_vertical_space(1)
 
 #endregion
-
 
 #region off_playbook
 
@@ -281,106 +316,117 @@ with off_playbook_exp:
         
 #endregion
 
-
-# #region player_eval
+#region player_eval
            
-# with player_eval_exp:
-#     cols = st.columns([0.05,0.3,0.3,0.3,0.05])
-#     results = {}
-#     passing_df = df[df['action']=='rec']
-#     rushing_df = df[df['action']=='rush']
-#     skill_players_rec = passing_df['player'].unique().tolist()
-#     skill_players_rush = rushing_df['player'].unique().tolist()
-#     #QB edge case
-#     results['king'] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
-#                                'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
-#                                'eff_car':0, 'rush_yds':0}
-#     for player in skill_players_rec:
-#         if player not in results.keys():
-#             results[player] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
-#                                'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
-#                                'eff_car':0, 'rush_yds':0}
-#         df_player = df[df['player']==player]   
-#         df_player_rec = df_player[df_player['action']=='rec']
-#         # Plays     
-#         results[player]['plays'] = len(df_player_rec)
-#         # Cmp 
-#         results[player]['targets'] = len(df_player_rec)
-#         df_player_cmp = df_player_rec[df_player_rec['completed']==True]
-#         results[player]['rec'] = len(df_player_cmp)
-#         results['king']['cmp'] += len(df_player_cmp)
-#         # Yds
-#         rec_yds = df_player_cmp['yds'].sum()
-#         results[player]['rec_yds'] = rec_yds
-#     results['king']['pass_yds'] = passing_df['yds'].sum()
-#     results['king']['att'] = len(passing_df)
-#     results['king']['plays'] = len(passing_df)
-#     for player in skill_players_rush:
-#         if player not in results.keys():
-#             results[player] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
-#                                'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
-#                                'eff_car':0, 'rush_yds':0}
-#         df_player = df[df['player']==player]   
-#         df_player_rush = df_player[df_player['action']=='rush']
-#         # Plays    
-#         if 'plays' not in results[player].keys(): 
-#             results[player]['plays'] = len(df_player_rush)
-#         else:
-#             results[player]['plays'] += len(df_player_rush)
-#         # Effective Carries
-#         results[player]['car'] = len(df_player_rush)
-#         df_player_eff = df_player_rush[(df_player_rush['yds']>5.0) | (df_player_rush['converted']==True)]
-#         results[player]['eff_car'] = len(df_player_eff)
-#         # Yds
-#         rush_yds = df_player_rush['yds'].sum()
-#         results[player]['rush_yds'] = rush_yds
-       
-#     sorted_data = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['plays'], reverse=True)}
+with player_eval_exp:
+    cols = st.columns([0.05,0.3,0.3,0.3,0.05])
+    results = {}
+    passing_df = df[df['action']=='rec']
+    rushing_df = df[df['action']=='rush']
+    skill_players_rec = passing_df['player'].unique().tolist()
+    skill_players_rush = rushing_df['player'].unique().tolist()
+    results['king'] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
+                               'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
+                               'eff_car':0, 'rush_yds':0}
+    results['pyron'] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
+                               'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
+                               'eff_car':0, 'rush_yds':0}
 
-#     for i,player in enumerate(sorted_data):  
-#         with cols[(i%3)+1]:  
-#             with stylable_container(
-#                 key=f"container_with_border_{player}",
-#                 css_styles="""
-#                     {
-#                         border: 2px solid rgba(100, 100, 100, 0.5);
-#                         border-radius: 0.5rem;
-#                         padding: calc(1em - 1px)
+    for player in skill_players_rec:
+        if player not in results.keys():
+            results[player] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
+                               'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
+                               'eff_car':0, 'rush_yds':0}
+        df_player = df[df['player']==player]   
+        df_player_rec = df_player[df_player['action']=='rec']
+        # Plays     
+        results[player]['plays'] = len(df_player_rec)
+        # Cmp 
+        results[player]['targets'] = len(df_player_rec)
+        df_player_cmp = df_player_rec[df_player_rec['completed']==True]
+        results[player]['rec'] = len(df_player_cmp)
+        results['king']['cmp'] += len(df_player_cmp)
+        # Yds
+        rec_yds = df_player_cmp['yds'].sum()
+        results[player]['rec_yds'] = rec_yds
+        
+    #QB Edge Cases
+    results['king']['pass_yds'] = passing_df['yds'].sum()-1
+    results['king']['att'] = len(passing_df)-1
+    results['king']['plays'] = len(passing_df)-1
+    results['king']['cmp'] -= 1
+    results['pyron']['pass_yds'] = -1
+    results['pyron']['att'] = 1
+    results['pyron']['plays'] = 1
+    results['pyron']['cmp'] += 1
+    
+    
+    for player in skill_players_rush:
+        if player not in results.keys():
+            results[player] = {'plays':0,'att':0,'cmp':0,'pass_yds':0,
+                               'targets':0, 'rec':0, 'rec_yds':0, 'car':0,
+                               'eff_car':0, 'rush_yds':0}
+        df_player = df[df['player']==player]   
+        df_player_rush = df_player[df_player['action']=='rush']
+        # Plays    
+        if 'plays' not in results[player].keys(): 
+            results[player]['plays'] = len(df_player_rush)
+        else:
+            results[player]['plays'] += len(df_player_rush)
+        # Effective Carries
+        results[player]['car'] = len(df_player_rush)
+        df_player_eff = df_player_rush[(df_player_rush['yds']>5.0) | (df_player_rush['converted']==True)]
+        results[player]['eff_car'] = len(df_player_eff)
+        # Yds
+        rush_yds = df_player_rush['yds'].sum()
+        results[player]['rush_yds'] = rush_yds
+       
+    sorted_data = {k: v for k, v in sorted(results.items(), key=lambda item: item[1]['plays'], reverse=True)}
+
+    for i,player in enumerate(sorted_data):  
+        with cols[(i%3)+1]:  
+            with stylable_container(
+                key=f"container_with_border_{player}",
+                css_styles="""
+                    {
+                        border: 2px solid rgba(100, 100, 100, 0.5);
+                        border-radius: 0.5rem;
+                        padding: calc(1em - 1px)
                         
-#                     }
-#                     """,
-#                 ):
-#                 st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
-#                 image = "./pics/"+player+".jpg"
-#                 base64_image = get_image_as_base64(image)
-#                 markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="250" style="border-radius:10px;"></div>"""
-#                 st.markdown(markdown_str, unsafe_allow_html=True)
-#                 container_cols = st.columns([0.05,0.5,0.4,0.05])
-#                 with container_cols[1]:
-#                     add_vertical_space(1)
-#                     st.write(sorted_data[player])
-#                 with container_cols[2]:
-#                     add_vertical_space(2)
-#                     if player != 'king':
-#                         if sorted_data[player]['targets'] > 0:
-#                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
-#                             fig = create_circular_progress_bar(cmp_pct, 'rec_eff','green')
-#                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
-#                         if sorted_data[player]['car'] > 0:
-#                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
-#                             fig = create_circular_progress_bar(eff_car_pct, 'car_eff', 'blue')
-#                             st.plotly_chart(fig,use_container_width=True,key=player+'eff')
-#                     else:
-#                         if sorted_data[player]['att'] > 0:
-#                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
-#                             fig = create_circular_progress_bar(cmp_pct, 'cmp','orange')
-#                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
-#                         if sorted_data[player]['car'] > 0:
-#                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
-#                             fig = create_circular_progress_bar(100-eff_car_pct, 'car_eff', 'blue')
-#                             st.plotly_chart(fig,use_container_width=True,key=player+'eff')
+                    }
+                    """,
+                ):
+                st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>{player}</p>", unsafe_allow_html=True)
+                image = "./pics/"+player+".jpg"
+                base64_image = get_image_as_base64(image)
+                markdown_str = f"""<div style="text-align:center;"><img src="data:image/jpeg;base64,{base64_image}" alt="{player}" width="250" style="border-radius:10px;"></div>"""
+                st.markdown(markdown_str, unsafe_allow_html=True)
+                container_cols = st.columns([0.05,0.5,0.4,0.05])
+                with container_cols[1]:
+                    add_vertical_space(1)
+                    st.write(sorted_data[player])
+                with container_cols[2]:
+                    add_vertical_space(2)
+                    if player != 'king' and player != 'pyron':
+                        if sorted_data[player]['targets'] > 0:
+                            cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
+                            fig = create_semi_circular_gauge(cmp_pct, 'rec_eff','green')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
+                        if sorted_data[player]['car'] > 0:
+                            eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
+                    else:
+                        if sorted_data[player]['att'] > 0:
+                            cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
+                            fig = create_semi_circular_gauge(cmp_pct, 'cmp','orange')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
+                        if sorted_data[player]['car'] > 0:
+                            eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
                     
-#     #endregion
+    #endregion
     
 # #region player_yot           
 # with player_yot_exp:

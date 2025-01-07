@@ -42,26 +42,20 @@ def create_circular_progress_bar(percentage, title_input, color_input):
         '#2499ff' if color_input == 'blue' else '#e38c00'
     )
 
+    # Calculate the progress and remainder explicitly
+    progress_value = percentage
+    remainder_value = 100 - percentage
 
-    # Add a full circle for the background
+    # Add a single trace to control both progress and remainder
     fig.add_trace(go.Pie(
-        values=[1],
-        hole=0.7,
-        marker_colors=['#e6e5e3'],
-        showlegend=False,
-        textinfo='none'
-    ))
-
-    # Add a partial circle for the progress
-    fig.add_trace(go.Pie(
-        values=[percentage/100, (1-(percentage/100))],  # Correctly map progress and remainder
+        values=[progress_value, remainder_value],
         hole=0.7,
         marker=dict(
-            colors=[color, 'rgba(0,0,0,0)'],  # Progress color and transparent remainder
+            colors=[color, '#e6e5e3'],  # Progress color and gray for remainder
             line=dict(color='black', width=1)  # Black outline
         ),
-        direction='counterclockwise',
-        rotation=0,  # Start from the top of the circle
+        direction='counterclockwise',  # Force clockwise direction
+        rotation=0,  # Start at the bottom
         showlegend=False,
         textinfo='none'
     ))
@@ -80,14 +74,52 @@ def create_circular_progress_bar(percentage, title_input, color_input):
             }
         },
         margin=dict(t=20, b=5, l=0, r=0),
-        width=100,  # Adjust size for better alignment
-        height=100,
+        width=80,  # Adjust size for better alignment
+        height=80,
         paper_bgcolor="rgba(0,0,0,0)"  # Transparent background
     )
+    
 
     return fig
 
-dummy_pie = create_circular_progress_bar(100,'dummy','green')
+def create_semi_circular_gauge(percentage, title_input, color_input):
+    # Determine the color based on input
+    color = '#0afa46' if color_input == 'green' else (
+        '#2499ff' if color_input == 'blue' else '#e38c00'
+    )
+
+    # Create a semi-circular gauge
+    fig = go.Figure()
+
+    # Add the gauge
+    fig.add_trace(go.Indicator(
+        mode="gauge+number",
+        value=percentage,
+        title={'text': f"{title_input}: {percentage}%"},
+        gauge={
+            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "darkgray"},
+            'bar': {'color': color},  # Progress bar color
+            'bgcolor': "white",  # Background color
+            'steps': [
+                {'range': [0, 100], 'color': '#e6e5e3'}  # Background color for gauge
+            ],
+            'threshold': {
+                'line': {'color': color, 'width': 4},
+                'thickness': 0.75,
+                'value': percentage
+            }
+        }
+    ))
+
+    # Update layout for a semi-circle effect
+    fig.update_layout(
+        margin=dict(t=10, b=10, l=0, r=10),
+        width=100,
+        height=75,
+        paper_bgcolor="rgba(0,0,0,0)",  # Transparent background
+    )
+
+    return fig
 
 #endregion
 
@@ -97,7 +129,7 @@ notes = load_notes(notes_file_path)
 with header_cols[0].popover('Notes', use_container_width=True):
     for note in notes:
         st.warning('* '+note)
-
+        
                 
 editor_exp = st.expander('editor')
 dashboard_container = st.container()
@@ -361,25 +393,26 @@ with player_eval_exp:
                     add_vertical_space(1)
                     st.write(sorted_data[player])
                 with container_cols[2]:
-                    add_vertical_space(2)
+                    add_vertical_space(4)
                     if player != 'king':
                         if sorted_data[player]['targets'] > 0:
                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
-                            fig = create_circular_progress_bar(cmp_pct, 'rec_eff','green')
-                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
+                            fig = create_semi_circular_gauge(cmp_pct, 'rec_eff','green')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
-                            fig = create_circular_progress_bar(eff_car_pct, 'car_eff', 'blue')
-                            st.plotly_chart(fig,use_container_width=True,key=player+'eff')
+                            fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
                     else:
                         if sorted_data[player]['att'] > 0:
                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
-                            fig = create_circular_progress_bar(cmp_pct, 'cmp','orange')
-                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp')
+                            fig = create_semi_circular_gauge(cmp_pct, 'cmp','orange')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
-                            fig = create_circular_progress_bar(100-eff_car_pct, 'car_eff', 'blue')
-                            st.plotly_chart(fig,use_container_width=True,key=player+'eff')
+                            fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
+                            st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
+                        
                     
     #endregion
     

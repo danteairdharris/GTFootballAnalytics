@@ -274,7 +274,7 @@ with dashboard_container:
             ax.annotate(
                 f'({last_avg:.2f})',  # Text to display
                 xy=(last_index, last_avg),         # Point to annotate
-                xytext=(last_index-2, last_avg+0.02),  # Text position
+                xytext=(last_index-3, last_avg+0.02),  # Text position
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
             )

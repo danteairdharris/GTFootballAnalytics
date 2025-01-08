@@ -319,7 +319,7 @@ with dashboard_container:
             rush_eff =       metric_container_cols[3].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
             rush_total =     metric_container_cols[4].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
             style_metric_cards()
-            add_vertical_space(1)
+            add_vertical_space(4)
 
 #endregion
 

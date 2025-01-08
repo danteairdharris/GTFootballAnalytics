@@ -248,15 +248,18 @@ with dashboard_container:
             df_team_graph = data.copy()
             df_team_graph['efficient'] = (df_team_graph['yds']>5.0) | (df_team_graph['converted']==True)
             df_team_graph['efficiency'] = df_team_graph['efficient'].expanding().mean()
-            df_team_graph['conv%'] = df_team_graph['converted'].expanding().mean()
-
+            df_team_graph['yds_positive'] = df_team_graph['yds'].apply(lambda x: x if x > 0 else 0)
+            df_team_graph['yds_total_positive'] = df_team_graph['yds_positive'].cumsum()
+            df_team_graph['contributing_yds'] = df_team_graph.apply(lambda x: x['yds'] * x['contributed'], axis=1)
+            df_team_graph['contributing_yds_total'] = df_team_graph['contributing_yds'].cumsum()
+            df_team_graph['contributing_yds%'] = df_team_graph['contributing_yds_total'] / df_team_graph['yds_total_positive']
+        
             fig, ax = plt.subplots()
             # Plot yards vs. index for the current player (using index as x-axis)
-            ax.plot(df_team_graph.index, df_team_graph['efficiency'], marker='o', label='efficiency', color='#00d443')
-            # ax.plot(df_team_graph.index, df_team_graph['conv%'], marker='o', label='conversion rate', color='#f736ee')
+            ax.plot(df_team_graph.index, df_team_graph['efficiency'], marker='o', label='efficient movement %', color='#00d443')
+            ax.plot(df_team_graph.index, df_team_graph['contributing_yds%'], marker='o', label='yd contribution %', color='#f736ee')
             
-            # limit the y axis manually
-            # plt.ylim(0,1.0)
+            
             
             line = [0.5]*df.shape[0]
             ax.plot(df.index, line)
@@ -264,6 +267,17 @@ with dashboard_container:
                 '0.5',  # Text to display
                 xy=(0, 0.5),         # Point to annotate
                 xytext=(-0.5, 0.51),  # Text position
+                fontsize=12,                       # Font size
+                color='black'                       # Text color
+            )
+            
+            # Annotate the last point of the main plot (avg column)
+            last_index = df_team_graph.index[-1]
+            last_avg = df_team_graph['contributing_yds%'].iloc[-1]
+            ax.annotate(
+                f'({last_avg:.2f})',  # Text to display
+                xy=(last_index, last_avg),         # Point to annotate
+                xytext=(last_index-3, last_avg+0.03),  # Text position
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
             )
@@ -278,6 +292,10 @@ with dashboard_container:
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
             )
+            
+            
+            # limit the y axis manually
+            plt.ylim(last_avg-0.16,1.03)
             
             
             # Label the axes and title

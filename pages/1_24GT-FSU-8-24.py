@@ -562,7 +562,7 @@ with player_eval_exp:
         
         player_notes = {
             'haynes': ['green', 'consistent! efficient movements of the ball agnostic of game clock.'],
-            'singleton': ['yellow', 'low production but dependable target.'],
+            'singleton': ['yellow', 'low production but dependable target.                          '],
             'rutherford': ['yellow', 'potentially detrimental incompletions. productive in clutch time.'],
             'king': ['yellow', 'decent balance for our offense. Rushing needs to improve.'],
             'alexander': ['green', 'RB2!']

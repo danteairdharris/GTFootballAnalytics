@@ -253,7 +253,7 @@ with dashboard_container:
             fig, ax = plt.subplots()
             # Plot yards vs. index for the current player (using index as x-axis)
             ax.plot(df_team_graph.index, df_team_graph['efficiency'], marker='o', label='efficiency', color='#00d443')
-            ax.plot(df_team_graph.index, df_team_graph['conv%'], marker='o', label='conversion rate', color='#f736ee')
+            # ax.plot(df_team_graph.index, df_team_graph['conv%'], marker='o', label='conversion rate', color='#f736ee')
             
             line = [0.5]*df.shape[0]
             ax.plot(df.index, line)

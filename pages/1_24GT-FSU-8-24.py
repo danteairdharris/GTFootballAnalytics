@@ -246,7 +246,7 @@ with dashboard_container:
         ):
             cont_cols = st.columns([0.05,0.9,0.05])
             df_team_graph = data.copy()
-            df_team_graph['efficient'] = df_team_graph['yds'] >= 5 
+            df_team_graph['efficient'] = (df_team_graph['yds']>5.0) | (df_team_graph['converted']==True)
             df_team_graph['efficiency'] = df_team_graph['efficient'].expanding().mean()
             df_team_graph['conv%'] = df_team_graph['converted'].expanding().mean()
 

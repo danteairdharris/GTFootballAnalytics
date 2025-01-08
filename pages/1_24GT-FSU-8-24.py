@@ -262,7 +262,7 @@ with dashboard_container:
             ax.plot(df.index, line)
             ax.annotate(
                 '0.5',  # Text to display
-                xy=(0, 0.5),         # Point to annotate
+                xy=(0, 0.55),         # Point to annotate
                 xytext=(-0.5, 0.5),  # Text position
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
@@ -274,7 +274,7 @@ with dashboard_container:
             ax.annotate(
                 f'({last_avg:.2f})',  # Text to display
                 xy=(last_index, last_avg),         # Point to annotate
-                xytext=(last_index-1.5, last_avg+0.05),  # Text position
+                xytext=(last_index, last_avg+0.05),  # Text position
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
             )

@@ -255,7 +255,8 @@ with dashboard_container:
             ax.plot(df_team_graph.index, df_team_graph['efficiency'], marker='o', label='efficiency', color='#00d443')
             # ax.plot(df_team_graph.index, df_team_graph['conv%'], marker='o', label='conversion rate', color='#f736ee')
             
-            plt.ylim(0,1.0)
+            # limit the y axis manually
+            # plt.ylim(0,1.0)
             
             line = [0.5]*df.shape[0]
             ax.plot(df.index, line)

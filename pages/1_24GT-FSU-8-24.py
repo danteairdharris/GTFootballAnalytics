@@ -262,31 +262,23 @@ with dashboard_container:
             ax.plot(df.index, line)
             ax.annotate(
                 '0.5',  # Text to display
-                xy=(0, 5),         # Point to annotate
-                xytext=(-0.5, 5),  # Text position
+                xy=(0, 0.5),         # Point to annotate
+                xytext=(-0.5, 0.5),  # Text position
                 fontsize=12,                       # Font size
                 color='black'                       # Text color
             )
             
-            # # Annotate the last point of the main plot (avg column)
-            # last_index = df_team_graph.index[-1]
-            # last_avg = df_team_graph['efficiency'].iloc[-1]
-            # ax.annotate(
-            #     f'({last_avg:.2f})',  # Text to display
-            #     xy=(last_index, last_avg),         # Point to annotate
-            #     xytext=(last_index-1.5, last_avg+1.5),  # Text position
-            #     fontsize=12,                       # Font size
-            #     color='black'                       # Text color
-            # )
+            # Annotate the last point of the main plot (avg column)
+            last_index = df_team_graph.index[-1]
+            last_avg = df_team_graph['efficiency'].iloc[-1]
+            ax.annotate(
+                f'({last_avg:.2f})',  # Text to display
+                xy=(last_index, last_avg),         # Point to annotate
+                xytext=(last_index-1.5, last_avg+0.05),  # Text position
+                fontsize=12,                       # Font size
+                color='black'                       # Text color
+            )
             
-            # last_conv_avg = df_team_graph['conv%'].iloc[-1]
-            # ax.annotate(
-            #     f'({last_avg:.2f})',  # Text to display
-            #     xy=(last_index, last_avg),         # Point to annotate
-            #     xytext=(last_index-1.5, last_avg+1.5),  # Text position
-            #     fontsize=12,                       # Font size
-            #     color='black'                       # Text color
-            # )
             
             # Label the axes and title
             ax.set_xlabel('Play')

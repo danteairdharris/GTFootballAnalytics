@@ -116,7 +116,7 @@ def create_semi_circular_gauge(percentage, title_input, color_input):
 
     # Update layout for a semi-circle effect
     fig.update_layout(
-        margin=dict(t=10, b=10, l=10, r=10),
+        margin=dict(t=5, b=5, l=5, r=5),
         width=100,
         height=75,
         paper_bgcolor="rgba(0,0,0,0)",  # Transparent background
@@ -405,27 +405,27 @@ with player_eval_exp:
                     add_vertical_space(1)
                     st.write(sorted_data[player])
                 with container_cols[2]:
-                    add_vertical_space(4)
+                    add_vertical_space(2)
                     if player != 'king' and player != 'pyron':
                         if sorted_data[player]['targets'] > 0:
-                            add_vertical_space(1)
                             cmp_pct = round((sorted_data[player]['rec']/sorted_data[player]['targets'])*100,2)
+                            st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>cmp%</p>", unsafe_allow_html=True)
                             fig = create_semi_circular_gauge(cmp_pct, 'rec_eff','green')
                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
-                            add_vertical_space(1)
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>eff_car%</p>", unsafe_allow_html=True)
                             fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
                             st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
                     else:
                         if sorted_data[player]['att'] > 0:
-                            add_vertical_space(1)
                             cmp_pct = round((sorted_data[player]['cmp']/sorted_data[player]['att'])*100,2)
+                            st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>cmp%</p>", unsafe_allow_html=True)
                             fig = create_semi_circular_gauge(cmp_pct, 'cmp','orange')
                             st.plotly_chart(fig,use_container_width=True,key=player+'cmp',theme=None)
                         if sorted_data[player]['car'] > 0:
-                            add_vertical_space(1)
                             eff_car_pct = round((sorted_data[player]['eff_car']/sorted_data[player]['car'])*100,2)
+                            st.markdown(f"<p style='text-align: center; color: black; font-size: 14px;'>eff_car%</p>", unsafe_allow_html=True)
                             fig = create_semi_circular_gauge(eff_car_pct, 'car_eff', 'blue')
                             st.plotly_chart(fig,use_container_width=True,key=player+'eff',theme=None)
                     

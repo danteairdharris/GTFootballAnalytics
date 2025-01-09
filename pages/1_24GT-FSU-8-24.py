@@ -175,13 +175,17 @@ header = st.container()
 header_cols = header.columns(5)
 notes = load_notes(notes_file_path)
     
-with header_cols[0].popover('Notes', use_container_width=True):
+with header_cols[0].popover('ℹ️Info', use_container_width=True):
     for note in notes:
         st.warning('* '+note)
         
                 
 editor_exp = st.expander('editor')
 dashboard_container = st.container()
+
+columns = st.columns(2)
+columns[0].info('efficient movement %  =  plays advancing at least 5 yds or converting / total plays.')
+columns[0].info('yd contribution %  =  positive yardage leading to a score / total positive yardage.')
 off_playbook_exp = st.expander('offensive review')
 player_eval_exp = st.expander('offensive player eval')
 player_yot_exp = st.expander('offensive player yards over time')
@@ -342,9 +346,9 @@ with off_playbook_exp:
     
     add_vertical_space(2)
     gt_terr, opp_terr, red_zone, all_plays = st.tabs(['gt_terr','opp_terr','red_zone','all_plays'])   
-    
+    df = data.copy()
+    df = df[['down', 'ytg', 'field_pos', 'player', 'action', 'completed', 'yds', 'converted']]
     with gt_terr:
-        df = data.copy()
         gt_terr_first_container = st.container()
         gt_terr_third_container = st.container()
         cols_first = gt_terr_first_container.columns([0.01,0.49,0.49,0.01])
@@ -568,20 +572,42 @@ with player_eval_exp:
             'alexander': ['green', 'RB2!']
         }
         
-        for player in skill_players:
+        
+        with cols[3]:
+            add_vertical_space(1)
+            with stylable_container(
+                    key="container_with_border_black",
+                    css_styles="""
+                        {
+                            border: 1px solid rgba(100, 100, 100, 0.5);
+                            border-radius: 0.5rem;
+                            padding: 10px;
+                        }
+                        """,
+                ):
+                    add_vertical_space(1)   
+                    st.markdown(f"<h3 style='text-align: center; color: black; font-size: 14px;'>Notes</p>", unsafe_allow_html=True)
+                    for player in skill_players:
+                        if player in player_notes.keys():
+                            if player_notes[player][0] == 'green':
+                                st.success(player+': '+player_notes[player][1])
+                            elif player_notes[player][0] == 'yellow':
+                                st.warning(player+': '+player_notes[player][1])
+                            else:
+                                st.error(player+': '+player_notes[player][1]) 
+                    add_vertical_space(2)            
+                    
+             
+             
+        for player in skill_players:            
             i += 1
             df_player = df[df['player']==player]  
             if len(df_player) < 3:
                 i -= 1
                 continue
 
-            with cols[(i%3)+1]:
-                if player_notes[player][0] == 'green':
-                    st.success(player_notes[player][1])
-                elif player_notes[player][0] == 'yellow':
-                    st.warning(player_notes[player][1])
-                else:
-                    st.error(player_notes[player][1]) 
+            with cols[(i%2)+1]:
+                
                 # Create a new figure for each player
                 fig, ax = plt.subplots()
                 # Plot yards vs. index for the current player (using index as x-axis)
@@ -681,9 +707,7 @@ with player_eval_exp:
 #endregion  
 
 
-# TO DO graph yardage + conversion rate by time
-
-st.warning('Will begin defensive analysis when finished with each offensive review.')
+st.info('Will begin defensive analysis when finished with each offensive review.')
 
 # defensive_review_exp = st.expander('defensive review')
 # def_eval_exp = st.expander('defensive player eval')

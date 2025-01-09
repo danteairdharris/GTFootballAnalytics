@@ -127,10 +127,10 @@ def create_semi_circular_gauge(percentage, title_input, color_input):
 #endregion
 
 header = st.container()
-header_cols = header.columns(6)
-
+header_cols = header.columns(5)
 notes = load_notes(notes_file_path)
-with header_cols[0].popover('Notes', use_container_width=True):
+    
+with header_cols[0].popover('ℹ️Info', use_container_width=True):
     for note in notes:
         st.warning('* '+note)
 

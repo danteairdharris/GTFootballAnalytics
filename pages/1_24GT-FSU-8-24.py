@@ -24,7 +24,6 @@ st.markdown("""
 	.stTabs [data-baseweb="tab-list"] {
 		gap: 20px;
     }
-
 	.stTabs [data-baseweb="tab"] {
 		height: 50px;
         width: 100px;
@@ -35,10 +34,23 @@ st.markdown("""
 		padding-top: 10px;
 		padding-bottom: 10px;
     }
-
 	.stTabs [aria-selected="true"] {
   		background-color: #FFFFFF;
 	}
+ 
+    section[data-testid="stSidebar"] {
+        width: 310px !important;
+    }
+    .st-emotion-cache-1i55tjj {
+        display: none;
+    } 
+    .css-1nm2qww {
+        display: none;
+    }
+    .css-vk3wp9 {
+        min-width: 309px;
+        max-width: 310px;
+    }
 
 </style>""", unsafe_allow_html=True)
 
@@ -179,16 +191,10 @@ with header_cols[0].popover('ℹ️Info', use_container_width=True):
     for note in notes:
         st.warning('* '+note)
         
-                
 editor_exp = st.expander('editor')
-dashboard_container = st.container()
-
-columns = st.columns(2)
-columns[0].info('efficient movement %  =  plays advancing at least 5 yds or converting / total plays.')
-columns[0].info('yd contribution %  =  positive yardage leading to a score / total positive yardage.')
+dashboard_exp = st.expander('dashboard')
 off_playbook_exp = st.expander('offensive review')
 player_eval_exp = st.expander('offensive player eval')
-player_yot_exp = st.expander('offensive player yards over time')
 
 #region editor
 
@@ -214,56 +220,145 @@ player_yot_exp = st.expander('offensive player yards over time')
 
 #endregion
 
-#region overall_off
+#region dashboard
 
-with dashboard_container:
-    cols = st.columns([0.5,0.5])
+with dashboard_exp:
+
+    add_vertical_space(2)
+    team_metrics, team_graphs = st.tabs(['team_metrics','team_graphs'])   
+    
+    metrics = {
+        'plays':0,'total_yds':0,'avg_yds':0,'offensive_efficacy':0,
+        'pass_ratio':0,'pass_yds':0,'rec_avg':0,'pass_efficiency':0,
+        'rush_ratio':0,'rush_yds':0,'car_avg':0,'rush_efficiency':0,
+        'completion_pct':0,'yd_contribution':0,'total_conversion_rate':0,'third_conversion_rate':0
+    }
+    
     df = data.copy()
-    # Determine Pass / Rush Ratio
+    # Passing Plays / Rushing Plays
     plays = len(df)
+    metrics['plays'] = plays
     passing_df = df[df['action']=='rec']
     rushing_df = df[df['action']=='rush']
-    # plays == len(passing_df)+len(rushing_df)
-    p_ratio = (len(passing_df)/plays)*100
-    r_ratio = (len(rushing_df)/plays)*100
+    # Pass / Rush Ratio
+    p_ratio = len(passing_df)/plays
+    r_ratio = 1 - p_ratio
+    metrics['pass_ratio'] = p_ratio
+    metrics['rush_ratio'] = r_ratio
     # Avg Yds per Rec
-    p_avg = passing_df['yds'].mean()
+    completed_df = passing_df[passing_df['completed']==True]
+    rec_avg = completed_df['yds'].mean()
+    metrics['rec_avg'] = rec_avg
     # Avg Yds per Carry
-    r_avg = rushing_df['yds'].mean()
+    car_avg = rushing_df['yds'].mean()
+    metrics['car_avg'] = car_avg
+    # Avg Yds per play
+    avg_yds = df['yds'].mean()
+    metrics['avg_yds'] = avg_yds
+    # Pass Yds
+    pass_yds = passing_df['yds'].sum()
+    metrics['pass_yds'] = pass_yds
+    # Rush Yds
+    rush_yds = rushing_df['yds'].sum()
+    metrics['rush_yds'] = rush_yds
+    # Total Yds
+    total_yds = pass_yds + rush_yds
+    metrics['total_yds'] = total_yds
     # Completion %
-    comp_df = passing_df[passing_df['completed']==True]
-    comp_pct = len(comp_df)/len(passing_df)
-    # Effective Carry %
+    comp_pct = len(completed_df)/len(passing_df)
+    metrics['completion_pct'] = comp_pct
+    # Effective Receptions
+    eff_rec_df = passing_df[(passing_df['yds']>5.0) | (passing_df['converted']==True)]
+    # Effective Carries
     eff_car_df = rushing_df[(rushing_df['yds']>5.0) | (rushing_df['converted']==True)]
-    eff_car_pct = len(eff_car_df)/len(rushing_df)
+    # Effective Plays
+    eff_plays_df = df[(df['yds']>5.0) | (df['converted']==True)]
+    # Passing Efficacy 
+    pass_efficacy = len(eff_rec_df)/len(passing_df)
+    metrics['pass_efficiency'] = pass_efficacy
+    # Rushing Efficacy
+    rush_efficacy = len(eff_car_df)/len(rushing_df)
+    metrics['rush_efficiency'] = rush_efficacy
+    # Efficient Movement %
+    offensive_efficacy = len(eff_plays_df)/plays
+    metrics['offensive_efficacy'] = offensive_efficacy
+    # Conversion Rate
+    conversion_df = df[df['converted']==True]
+    conversion_rate = len(conversion_df)/plays
+    metrics['total_conversion_rate'] = conversion_rate
+    # Third_conversion_rate
+    third_df = df[df['down']==3]
+    third_conversion_df = third_df[third_df['converted']==True]
+    third_conversion_rate = len(third_conversion_df)/len(third_df)
+    metrics['third_conversion_rate'] = third_conversion_rate
     
-    with cols[0]:
-        with stylable_container(
-            key="container_with_border_black",
-            css_styles="""
-                {
-                    border: 1px solid rgba(100, 100, 100, 0.5);
-                    border-radius: 0.5rem;
-                    padding: 1px;
-                }
-                """,
-        ):
-            cont_cols = st.columns([0.05,0.9,0.05])
-            df_team_graph = data.copy()
-            df_team_graph['efficient'] = (df_team_graph['yds']>5.0) | (df_team_graph['converted']==True)
-            df_team_graph['efficiency'] = df_team_graph['efficient'].expanding().mean()
-            df_team_graph['yds_positive'] = df_team_graph['yds'].apply(lambda x: x if x > 0 else 0)
-            df_team_graph['yds_total_positive'] = df_team_graph['yds_positive'].cumsum()
-            df_team_graph['contributing_yds'] = df_team_graph.apply(lambda x: x['yds'] * x['contributed'], axis=1)
-            df_team_graph['contributing_yds_total'] = df_team_graph['contributing_yds'].cumsum()
-            df_team_graph['contributing_yds%'] = df_team_graph['contributing_yds_total'] / df_team_graph['yds_total_positive']
+    # Team Graph
+    df_team_graph = data.copy()
+    df_team_graph['efficient'] = (df_team_graph['yds']>5.0) | (df_team_graph['converted']==True)
+    df_team_graph['efficiency'] = df_team_graph['efficient'].expanding().mean()
+    df_team_graph['yds_positive'] = df_team_graph['yds'].apply(lambda x: x if x > 0 else 0)
+    df_team_graph['yds_total_positive'] = df_team_graph['yds_positive'].cumsum()
+    df_team_graph['contributing_yds'] = df_team_graph.apply(lambda x: x['yds'] * x['contributed'], axis=1)
+    df_team_graph['contributing_yds_total'] = df_team_graph['contributing_yds'].cumsum()
+    df_team_graph['contributing_yds%'] = df_team_graph['contributing_yds_total'] / df_team_graph['yds_total_positive']
+    
+    # Contributing Yds
+    contributing_yds = df_team_graph['contributing_yds'].sum()
+    total_positive_yds = df_team_graph['yds_positive'].sum()
+    # Yd Contribution %
+    yd_contribution = contributing_yds/total_positive_yds
+    metrics['yd_contribution'] = yd_contribution
+    
+    
+    with team_metrics:
+        cont_cols = st.columns([0.13,0.13,0.13,0.13,0.48])
+        for i,metric in enumerate(metrics.keys()):
+            with cont_cols[i%4]:
+                with stylable_container(
+                    key=f"container_with_border_{metric}",
+                    css_styles="""
+                        {
+                            border: 2px solid rgba(100, 100, 100, 0.5);
+                            border-radius: 0.5rem;
+                            padding: calc(1em - 1px)
+                            
+                        }
+                        """,
+                    ):
+                    st.metric(label=metric,value=round(metrics[metric],2))
+
+        legend = [
+            'an efficient movement advances the ball >= 5 yds or converts',
+            'offensive efficacy = number of efficient movements / total plays',
+            'pass efficiency = efficient passes / attempts',
+            'rush efficiency = efficient rushes / attempts',
+            'yd contribution = positive yds leading to a score / total positive yds' 
+        ]
+
+        with cont_cols[4]:
+            with stylable_container(
+                    key="container_with_border_black",
+                    css_styles="""
+                        {
+                            border: 1px solid rgba(100, 100, 100, 0.5);
+                            border-radius: 0.5rem;
+                            padding: 10px;
+                        }
+                        """,
+                ):
+                    st.markdown(f"<h3 style='text-align: center; color: black; font-size: 14px;'>Notes</p>", unsafe_allow_html=True)
+                    for i in legend:
+                        st.info(i)
+                    add_vertical_space(2)   
         
+    with team_graphs:
+        cont_cols = st.columns([0.05,0.3,0.3,0.3,0.05])
+        
+        with cont_cols[1]:
             fig, ax = plt.subplots()
             # Plot yards vs. index for the current player (using index as x-axis)
             ax.plot(df_team_graph.index, df_team_graph['efficiency'], marker='o', label='efficient movement %', color='#00d443')
             ax.plot(df_team_graph.index, df_team_graph['contributing_yds%'], marker='o', label='yd contribution %', color='#f736ee')
-            
-            
             
             line = [0.5]*df.shape[0]
             ax.plot(df.index, line)
@@ -308,35 +403,9 @@ with dashboard_container:
             # Add a legend
             ax.legend()
             # Display the plot in Streamlit
-            cont_cols[1].pyplot(fig)
-    
-    with cols[1]:
-        with stylable_container(
-            key="container_with_border_black",
-            css_styles="""
-                {
-                    border: 1px solid rgba(100, 100, 100, 0.5);
-                    border-radius: 0.5rem;
-                    padding: 20px;
-                }
-                """,
-        ):
-            add_vertical_space(4)
-            metric_container_cols = st.columns([0.06,0.22,0.22,0.22,0.22,0.06])
-            plays_total =    metric_container_cols[1].metric(label='Plays',value=plays,delta=0)
-            drives =         metric_container_cols[2].metric(label='Drives',value=7,delta=0)
-            scoring_drives = metric_container_cols[3].metric(label='Scoring Drives',value=4,delta=0)
-            points =         metric_container_cols[4].metric(label='Points',value=24,delta=0)
-            pass_pct =       metric_container_cols[1].metric(label='Pass %',value=round(p_ratio,1),delta=0)
-            pass_avg =       metric_container_cols[2].metric(label="Avg Rec Yds / Att", value=round(p_avg,1), delta=0)
-            pass_cmp =       metric_container_cols[3].metric(label='Completion %',value=round(comp_pct,2)*100,delta=0)
-            pass_total =     metric_container_cols[4].metric(label='Total Passing (yds)',value=(round(passing_df['yds'].sum(),2)),delta=0)
-            rush_pct =       metric_container_cols[1].metric(label='Rush %',value=round(r_ratio,1),delta=0)
-            rush_avg =       metric_container_cols[2].metric(label="Avg Rush Yds / Att", value=round(r_avg,1), delta=0)
-            rush_eff =       metric_container_cols[3].metric(label='Rush Efficacy',value=round(eff_car_pct,2),delta=0)
-            rush_total =     metric_container_cols[4].metric(label='Total Rushing (yds)',value=(round(rushing_df['yds'].sum(),2)),delta=0)
-            style_metric_cards()
-            add_vertical_space(5)
+            st.pyplot(fig)
+
+            
 
 #endregion
 
@@ -707,18 +776,6 @@ with player_eval_exp:
 #endregion  
 
 
-st.info('Will begin defensive analysis when finished with each offensive review.')
-
-# defensive_review_exp = st.expander('defensive review')
-# def_eval_exp = st.expander('defensive player eval')
-
-
-
-# with defensive_review_exp:
-#     st.write('work in progress')
-    
-# with def_eval_exp:
-#     st.write('work in progress')
 
 
           
